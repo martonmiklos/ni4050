@@ -21,9 +21,7 @@ DESTDIR=bin
 SOURCES += main.cpp\
         mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-    ../../../Dokumentumok/NI/DOC/NI-4050A/module/ni4050.h
-
+HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
 LIBS += -lqwt
