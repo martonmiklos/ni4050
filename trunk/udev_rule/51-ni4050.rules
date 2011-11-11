@@ -1,0 +1,2 @@
+# National Instruments DAQCard-4050
+SUBSYSTEM=="ni_4050", ACTION=="add", MODE="0666"
