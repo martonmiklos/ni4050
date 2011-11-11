@@ -11,24 +11,6 @@ MainWindow::MainWindow(QWidget *parent) :
     fd(-1)
 {
     ui->setupUi(this);
-    rangeDisplayData << RangeDisplayInfo("250VDC", NI4050_RANGE_250VDC);
-    rangeDisplayData << RangeDisplayInfo("25VDC", NI4050_RANGE_25VDC);
-    rangeDisplayData << RangeDisplayInfo("2VDC", NI4050_RANGE_2VDC);
-    rangeDisplayData << RangeDisplayInfo("200mVDC", NI4050_RANGE_200mVDC);
-    rangeDisplayData << RangeDisplayInfo("20mVDC", NI4050_RANGE_20mVDC);
-    rangeDisplayData << RangeDisplayInfo("250VAC", NI4050_RANGE_250VAC);
-    rangeDisplayData << RangeDisplayInfo("25VAC", NI4050_RANGE_25VAC);
-    rangeDisplayData << RangeDisplayInfo("2VAC", NI4050_RANGE_2VAC);
-    rangeDisplayData << RangeDisplayInfo("200mVAC", NI4050_RANGE_200mVAC);
-    rangeDisplayData << RangeDisplayInfo("20mVAC", NI4050_RANGE_20mVAC);
-    rangeDisplayData << RangeDisplayInfo("EXTOHM", NI4050_RANGE_EXTOHM);
-    rangeDisplayData << RangeDisplayInfo("2MOHM", NI4050_RANGE_2MOHM);
-    rangeDisplayData << RangeDisplayInfo("200kOHM", NI4050_RANGE_200kOHM);
-    rangeDisplayData << RangeDisplayInfo("20kOHM", NI4050_RANGE_20kOHM);
-    rangeDisplayData << RangeDisplayInfo("2kOHM", NI4050_RANGE_2kOHM);
-    rangeDisplayData << RangeDisplayInfo("200OHM", NI4050_RANGE_200OHM);
-    rangeDisplayData << RangeDisplayInfo("DIODE", NI4050_RANGE_DIODE);
-    rangeDisplayData << RangeDisplayInfo("INVALID", NI4050_RANGE_INVALID);
 
     fillRangeCombobox();
     fillDeviceComboBox();
@@ -42,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->qwtPlot->setAxisAutoScale(0);
     ui->qwtPlot->setAxisAutoScale(1);
+
+    ui->qwtPlot->setAxisTitle(1, tr("Time"));
 }
 
 MainWindow::~MainWindow()
@@ -103,13 +87,17 @@ void MainWindow::on_pushButtonStartMeasurement_clicked()
             ui->pushButtonReadValue->setEnabled(true);
         }
     }
+
+    ui->qwtPlot->setAxisTitle(0, measurementModes[ui->comboBoxMeasurementMode->currentIndex()].title);
 }
 
 void MainWindow::fillRangeCombobox()
 {
+    int i = 0;
     ui->comboBoxMeasurementMode->clear();
-    foreach (RangeDisplayInfo info, rangeDisplayData) {
-        ui->comboBoxMeasurementMode->addItem(info.rangeName, info.rangeValue);
+    while (measurementModes[i].range != NI4050_RANGE_INVALID) {
+        ui->comboBoxMeasurementMode->addItem(measurementModes[i].name, measurementModes[i].range);
+        i++;
     }
 }
 
