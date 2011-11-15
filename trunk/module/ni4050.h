@@ -289,4 +289,7 @@ typedef enum _NI4050_RANGES
 
 #define NI4050_EEPROM_CAL_ZERO                  0x00
 #define NI4050_EEPROM_CAL_FULL                  0x03
+
+#define NI4050_ADC_READY_TIMEOUT_MS				1000
+#define NI4050_MEASURE_READY_TIMEOUT_MS			15000
 #endif	/* _NI4050_H_ */

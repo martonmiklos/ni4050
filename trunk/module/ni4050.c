@@ -407,9 +407,13 @@ int adcReady(struct ni4050_dev *dev)
 int waitForAdcReady(struct ni4050_dev *dev)
 {
 	unsigned int ready = 0;
+	unsigned int timeOutCounter = 0;
 	while (!ready) {
 		ready = adcReady(dev);
 		msleep(1);
+		timeOutCounter++;
+		if (timeOutCounter == NI4050_ADC_READY_TIMEOUT_MS)
+			return -1;
 	}
 	return 0;
 };
@@ -467,7 +471,7 @@ int measurmentDataRead(struct ni4050_dev *dev, int *value)
 	{
 		msleep(1);
 		i++;
-		if (i == 10000) 
+		if (i == NI4050_MEASURE_READY_TIMEOUT_MS) 
 			return -1;
 	}
 
@@ -601,7 +605,8 @@ int startMeasurment(struct ni4050_dev *dev, NI4050_RANGES measurementMode)
 			pr_debug("Full scale coeff: %d\n", dev->FullScaleCalCoeff);
 
 			// Set Config Register
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Set Config Register\n");
 			tmp =   measurmentInfo[i].inputRange |
 					measurmentInfo[i].ohmsMode |
@@ -610,69 +615,84 @@ int startMeasurment(struct ni4050_dev *dev, NI4050_RANGES measurementMode)
 			xoutb(tmp, iobase + NI4050_CONFIG_REG); // flush
 
 			// Set ADC Mode
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Set ADC mode\n");
 			tmp =  measurmentInfo[i].measurmentMode;
 			tmp |= NI4050_ADC_COMMAND_REGSEL_MODEREG; // setRegisterSelect: Mode register
 			tmp |= NI4050_ADC_COMMAND_DEFAULT;
 			xoutb(tmp, iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			tmp =   1; // Reset filter
 			tmp |=  measurmentInfo[i].gain;
 			xoutb(tmp, iobase + NI4050_ADC_WRITE_REG); // flush
 
 
 			// Set Filter Frequency
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Set Filter Frequency\n");
 			xoutb(NI4050_ADC_COMMAND_REGSEL_FILTERHIGH | NI4050_ADC_COMMAND_DEFAULT | NI4050_ADC_WRITE_FSYNCH,
 				  iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb(measurmentInfo[i].filterValueH, iobase + NI4050_ADC_WRITE_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb(NI4050_ADC_COMMAND_REGSEL_FILTERLOW | NI4050_ADC_COMMAND_DEFAULT | NI4050_ADC_WRITE_FSYNCH,
 				  iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb(measurmentInfo[i].filterValueL, iobase + NI4050_ADC_WRITE_REG); // flush
 
 			// Set Calibration Coefficients
 			pr_debug("// Set Calibration Coefficients\n");
 			// Zero Scale
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Zero Scale\n");
 			xoutb(NI4050_ADC_COMMAND_REGSEL_ZEROCALIB | NI4050_ADC_COMMAND_DEFAULT | NI4050_ADC_WRITE_FSYNCH,
 				  iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->ZeroScaleCalCoeff >> 16), iobase + NI4050_ADC_WRITE_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->ZeroScaleCalCoeff >> 8), iobase + NI4050_ADC_WRITE_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->ZeroScaleCalCoeff), iobase + NI4050_ADC_WRITE_REG); // flush
 
 			// Full Scale
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Full Scale\n");
 			xoutb(NI4050_ADC_COMMAND_REGSEL_FULLCALIB | NI4050_ADC_COMMAND_DEFAULT | NI4050_ADC_WRITE_FSYNCH,
 				  iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->FullScaleCalCoeff >> 16), iobase + NI4050_ADC_WRITE_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->FullScaleCalCoeff >> 8), iobase + NI4050_ADC_WRITE_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			xoutb((unsigned char)(dev->FullScaleCalCoeff), iobase + NI4050_ADC_WRITE_REG); // flush
 
 			// Set Mode and Start Modulator/Filter
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Set Mode and Start Modulator/Filter\n");
 			tmp = measurmentInfo[i].measurmentMode |
 				NI4050_ADC_COMMAND_REGSEL_MODEREG |
@@ -680,12 +700,14 @@ int startMeasurment(struct ni4050_dev *dev, NI4050_RANGES measurementMode)
 				NI4050_ADC_WRITE_FSYNCH;
 			xoutb(tmp, iobase + NI4050_ADC_COMMAND_REG); // flush
 
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			tmp = measurmentInfo[i].gain;
 			xoutb(tmp, iobase + NI4050_ADC_WRITE_REG); // flush
 
 			// Set card to read
-			waitForAdcReady(dev);
+			if (waitForAdcReady(dev))
+				return -1;
 			pr_debug("// Set card to read\n");
 			tmp = measurmentInfo[i].measurmentMode |
 				NI4050_ADC_COMMAND_REGSEL_DATAREG |
