@@ -50,6 +50,9 @@
       <property name="enabled">
        <bool>false</bool>
       </property>
+      <property name="decimals">
+       <number>7</number>
+      </property>
       <property name="maximum">
        <double>999900009.000000000000000</double>
       </property>
@@ -156,6 +159,7 @@
    <class>QwtPlot</class>
    <extends>QFrame</extends>
    <header>qwt_plot.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

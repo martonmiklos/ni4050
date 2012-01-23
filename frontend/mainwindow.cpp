@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (fd != -1) {
+        ::close(fd);
+    }
     delete ui;
 }
 
