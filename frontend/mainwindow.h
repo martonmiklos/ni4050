@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include <QTimer>
 
-#include <qwt.h>
-#include <qwt_plot_curve.h>
+#include <qwt/qwt.h>
+#include <qwt/qwt_plot_curve.h>
 
 #include <stdio.h>
 #include <stdlib.h>
