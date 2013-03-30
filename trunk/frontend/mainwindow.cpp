@@ -20,10 +20,14 @@ MainWindow::MainWindow(QWidget *parent) :
     outCurve.setTitle("Output data");
     outCurve.setSamples(valueData);
     outCurve.attach(ui->qwtPlot);
-    outCurve.setPen(QPen(Qt::green));
+    QPen pen;
+    pen.setColor(Qt::green);
+    pen.setWidth(2);
+    outCurve.setPen(pen);
 
     ui->qwtPlot->setAxisAutoScale(0);
     ui->qwtPlot->setAxisAutoScale(1);
+    ui->qwtPlot->setCanvasBackground(QBrush(Qt::black));
 
     ui->qwtPlot->setAxisTitle(1, tr("Time"));
 }
@@ -125,7 +129,7 @@ void MainWindow::on_checkBoxReadContinously_toggled(bool checked)
 
 void MainWindow::on_comboBoxMeasurementMode_activated(const QString &arg1)
 {
-
+    Q_UNUSED(arg1)
 }
 
 void MainWindow::timeOut()
